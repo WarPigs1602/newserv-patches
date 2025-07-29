@@ -1,0 +1,19 @@
+--- a/pqsql/pqsql.c
++++ b/pqsql/pqsql.c
+@@ void dbhandler(int fd, short revents) {
+-  if(revents & POLLIN) {
+-    PQconsumeInput(dbconn);
+-    
+-    if(!PQisBusy(dbconn)) { /* query is complete */
+-      if(queryhead->handler && queryhead->identifier != QH_ALREADYFIRED)
+-        (queryhead->handler)(dbconn, queryhead->tag);
++  if(revents & POLLIN) {
++    PQconsumeInput(dbconn);
++
++    // Prevent NULL pointer access
++    if (!queryhead)
++      return;
++
++    if(!PQisBusy(dbconn)) { /* query is complete */
++      if(queryhead->handler && queryhead->identifier != QH_ALREADYFIRED)
++        (queryhead->handler)(dbconn, queryhead->tag);
